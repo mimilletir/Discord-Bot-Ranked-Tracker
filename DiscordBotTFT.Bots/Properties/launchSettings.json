@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "DiscordBotTFT.Bots": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:50127;http://localhost:50128"
+    }
+  }
+}
