@@ -6,7 +6,12 @@ using System.Text;
 
 namespace DiscordBotTFT.Core.Services.API
 {
-    public class APIService
+    public interface IAPIService
+    {
+        Task<Profile> GetAccountByName(string pseudo, string tag);
+    }
+
+    public class APIService : IAPIService
     {
         public string GetApiKey()
         {

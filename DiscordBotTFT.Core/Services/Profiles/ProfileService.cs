@@ -12,18 +12,20 @@ namespace DiscordBotTFT.Core.Services.Profiles
 
     public class ProfileService : IProfileService
     {
-        private readonly RiotContext _context;
+        private readonly DbContextOptions<RiotContext> _options;
         private readonly APIService _apiService;
 
-        public ProfileService(RiotContext context, APIService apiService)
+        public ProfileService(DbContextOptions<RiotContext> options, APIService apiService)
         {
-            _context = context;
+            _options = options;
             _apiService = apiService;
         }
 
         public async Task<string> CreateAccountAsync(string pseudo, string tag)
         {
-            var profile = await _context.Profiles
+            using var context = new RiotContext(_options);
+
+            var profile = await context.Profiles
                 .FirstOrDefaultAsync(x => x.gameName == pseudo && x.tagLine == tag).ConfigureAwait(false);
 
             if (profile != null) { return "Exist"; }
@@ -39,9 +41,9 @@ namespace DiscordBotTFT.Core.Services.Profiles
                 puuid = account.puuid
             };
 
-            _context.Add(profile);
+            context.Add(profile);
 
-            await _context.SaveChangesAsync().ConfigureAwait(false);
+            await context.SaveChangesAsync().ConfigureAwait(false);
 
             return "Success";
         }
