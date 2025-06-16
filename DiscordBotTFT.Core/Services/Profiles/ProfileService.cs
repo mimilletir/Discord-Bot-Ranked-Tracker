@@ -1,47 +1,51 @@
-﻿using DiscordBotTFT.DAL;
-using DiscordBotTFT.DAL.Models.Profiles;
+﻿using DiscordBotTFT.Core.Services.API;
+using DiscordBotTFT.DAL;
+using DiscordBotTFT.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DiscordBotTFT.Core.Services.Profiles
 {
     public interface IProfileService
     {
-        Task<Profile> GetOrCreateProfileAsync(ulong discordId, ulong guildId);
+        Task<string> CreateAccountAsync(string pseudo, string tag);
     }
 
     public class ProfileService : IProfileService
     {
-        private readonly DbContextOptions<RPGContext> _options;
+        private readonly DbContextOptions<RiotContext> _options;
+        private readonly APIService _apiService;
 
-        public ProfileService(DbContextOptions<RPGContext> options)
+        public ProfileService(DbContextOptions<RiotContext> options, APIService apiService)
         {
             _options = options;
+            _apiService = apiService;
         }
 
-        public async Task<Profile> GetOrCreateProfileAsync(ulong discordId, ulong guildId)
+        public async Task<string> CreateAccountAsync(string pseudo, string tag)
         {
-            using var context = new RPGContext(_options);
+            using var context = new RiotContext(_options);
 
             var profile = await context.Profiles
-                .Where(x => x.GuildId == guildId)
-                .Include(x => x.Items)
-                .Include(x => x.Items).ThenInclude(x => x.Item)
-                .FirstOrDefaultAsync(x => x.DiscordId == discordId).ConfigureAwait(false);
+                .FirstOrDefaultAsync(x => x.gameName == pseudo && x.tagLine == tag).ConfigureAwait(false);
 
-            if (profile != null) { return profile; }
+            if (profile != null) { return "Exist"; }
+
+            var account = await _apiService.GetAccountByName(pseudo, tag);
+
+            if (account == null) { return "Failed"; }
 
             profile = new Profile
             {
-                DiscordId = discordId,
-                GuildId = guildId,
-                Gold = 100
+                gameName = account.gameName,
+                tagLine = account.tagLine,
+                puuid = account.puuid
             };
 
             context.Add(profile);
 
             await context.SaveChangesAsync().ConfigureAwait(false);
 
-            return profile;
+            return "Success";
         }
     }
 }

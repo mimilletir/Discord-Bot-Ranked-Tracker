@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace DiscordBotTFT.DAL.Migrations.Migrations
+namespace DiscordBotTFT.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedProfiles : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,9 +16,9 @@ namespace DiscordBotTFT.DAL.Migrations.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    DiscordId = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
-                    GuildId = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
-                    Xp = table.Column<int>(type: "int", nullable: false)
+                    gameName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    tagLine = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    puuid = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

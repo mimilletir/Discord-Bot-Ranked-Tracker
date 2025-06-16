@@ -4,12 +4,8 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DiscordBotTFT.Bots
 {
@@ -58,8 +54,6 @@ namespace DiscordBotTFT.Bots
             Commands = Client.UseCommandsNext(commandsConfig);
 
             Commands.RegisterCommands<FunCommands>();
-            Commands.RegisterCommands<TeamCommands>();
-            Commands.RegisterCommands<ItemCommands>();
             Commands.RegisterCommands<ProfileCommands>();
 
             Client.ConnectAsync();
