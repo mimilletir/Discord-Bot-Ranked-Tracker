@@ -1,12 +1,7 @@
-﻿using DiscordBotTFT.Core.Services.Items;
+﻿using DiscordBotTFT.Core.Services.API;
 using DiscordBotTFT.Core.Services.Profiles;
 using DiscordBotTFT.DAL;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiscordBotTFT.Bots
 {
@@ -14,16 +9,15 @@ namespace DiscordBotTFT.Bots
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<RPGContext>(options =>
+            services.AddDbContext<RiotContext>(options =>
             {
-                options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=RPGContext;Trusted_Connection=True;MultipleActiveResultSets=true",
-                    x => x.MigrationsAssembly("DiscordBotTFT.DAL.Migrations"));
+                options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=RiotContext;Trusted_Connection=True;MultipleActiveResultSets=true",
+                    x => x.MigrationsAssembly("DiscordBotTFT.DAL"));
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
-            services.AddScoped<IItemService, ItemService>();
-            services.AddScoped<IExperienceService, ExperienceService>();
             services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IAPIService, APIService>();
 
             var serviceProvider = services.BuildServiceProvider();
 
