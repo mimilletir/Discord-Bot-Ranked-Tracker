@@ -6,4 +6,6 @@ artifacts/
 .vscode/
 .dotnet/
 *.binlog
-*.json
+
+DiscordBotTFT.Bots/config.json
+DiscordBotTFT.Core/Services/config.json
