@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotTFT.Core\DiscordBotTFT.Core.csproj" />
-    <ProjectReference Include="..\DiscordBotTFT.DAL.Migrations\DiscordBotTFT.DAL.Migrations.csproj" />
     <ProjectReference Include="..\DiscordBotTFT.DAL\DiscordBotTFT.DAL.csproj" />
   </ItemGroup>
 
