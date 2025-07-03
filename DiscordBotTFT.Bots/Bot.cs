@@ -4,6 +4,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.SlashCommands;
 using Newtonsoft.Json;
 using System.Text;
 
@@ -31,6 +32,7 @@ namespace DiscordBotTFT.Bots
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 MinimumLogLevel = LogLevel.Debug,
+                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents,
             };
 
             Client = new DiscordClient(config);
@@ -42,19 +44,15 @@ namespace DiscordBotTFT.Bots
                 Timeout = TimeSpan.FromMinutes(2)
             });
 
-            var commandsConfig = new CommandsNextConfiguration
+            var commandsConfig = new SlashCommandsConfiguration
             {
-                StringPrefixes = new string[] { configJson.Prefix },
-                EnableDms = false,
-                EnableMentionPrefix = true,
-                DmHelp = true,
                 Services = services
             };
 
-            Commands = Client.UseCommandsNext(commandsConfig);
+            var Commands = Client.UseSlashCommands(commandsConfig);
 
-            Commands.RegisterCommands<FunCommands>();
             Commands.RegisterCommands<ProfileCommands>();
+            Commands.RegisterCommands<MatchStatusCommands>();
 
             Client.ConnectAsync();
         }

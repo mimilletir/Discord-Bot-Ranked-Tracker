@@ -16,8 +16,9 @@ namespace DiscordBotTFT.Bots
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
+            services.AddHttpClient();
+            services.AddScoped<APIService>();
             services.AddScoped<IProfileService, ProfileService>();
-            services.AddScoped<IAPIService, APIService>();
 
             var serviceProvider = services.BuildServiceProvider();
 
