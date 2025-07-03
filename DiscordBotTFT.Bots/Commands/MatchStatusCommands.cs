@@ -14,7 +14,7 @@ namespace DiscordBotTFT.Bots.Commands
             _profileService = profileService;
         }
 
-        [SlashCommand("_init_", "initialise le bot dans le channel où la commande est lancée")]
+        [SlashCommand("init", "initialise le bot dans le channel où la commande est lancée")]
         [RequireRoles(RoleCheckMode.Any, "Admin")]
         public async Task Init(InteractionContext ctx)
         {
@@ -24,6 +24,12 @@ namespace DiscordBotTFT.Bots.Commands
             string json = await File.ReadAllTextAsync(filePath);
             channelMap = JsonConvert.DeserializeObject<Dictionary<ulong, ulong>>(json)
                             ?? new Dictionary<ulong, ulong>();
+
+            if (channelMap.ContainsKey(ctx.Guild.Id))
+            {
+                await ctx.CreateResponseAsync("Ce serveur est déjà initialisé.");
+                return;
+            }
 
             channelMap[ctx.Guild.Id] = ctx.Channel.Id;
 

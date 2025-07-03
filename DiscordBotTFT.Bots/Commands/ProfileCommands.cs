@@ -1,7 +1,5 @@
-﻿using DiscordBotTFT.Core.Services.Profiles;
-using DiscordBotTFT.DAL;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+﻿using DiscordBotTFT.Bots.Handlers;
+using DiscordBotTFT.Core.Services.Profiles;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
@@ -19,6 +17,10 @@ namespace DiscordBotTFT.Bots.Commands
         [SlashCommand("addaccount","Ajoute un compte à suivre")]
         public async Task AddAccount(InteractionContext ctx, [Option("Pseudo", "Name")] string pseudo, [Option("Tag", "Tag")] string tag)
         {
+            var channelHandler = new ChannelHandler();
+            if (await channelHandler.CheckChannel(ctx.Guild.Id, ctx.Channel.Id))
+                return;
+
             string result = await _profileService.CreateAccountAsync(ctx.Guild.Id, pseudo, tag);
 
             string message = result switch
@@ -34,6 +36,10 @@ namespace DiscordBotTFT.Bots.Commands
         [SlashCommand("deleteaccount", "Supprime un compte suivi")]
         public async Task DeleteAccount(InteractionContext ctx, [Option("Pseudo", "Name")] string pseudo, [Option("Tag", "Tag")] string tag)
         {
+            var channelHandler = new ChannelHandler();
+            if (await channelHandler.CheckChannel(ctx.Guild.Id, ctx.Channel.Id))
+                return;
+
             string result = await _profileService.DeleteAccountAsync(ctx.Guild.Id, pseudo, tag);
 
             string message = result switch
@@ -48,6 +54,10 @@ namespace DiscordBotTFT.Bots.Commands
         [SlashCommand("list", "Liste de tout les comptes suivis")]
         public async Task ListAccount(InteractionContext ctx)
         {
+            var channelHandler = new ChannelHandler();
+            if (await channelHandler.CheckChannel(ctx.Guild.Id, ctx.Channel.Id))
+                return;
+
             DiscordEmbedBuilder result = await _profileService.ListAccountAsync(ctx.Guild.Id);
 
             await ctx.Channel.SendMessageAsync(embed: result).ConfigureAwait(false);
@@ -56,6 +66,10 @@ namespace DiscordBotTFT.Bots.Commands
         [SlashCommand("leaderboard", "Classement des joueurs dans un certain type de queue")]
         public async Task LeaderboardAccount(InteractionContext ctx, [Option("QueueType", "Name")] string queueType)
         {
+            var channelHandler = new ChannelHandler();
+            if (await channelHandler.CheckChannel(ctx.Guild.Id, ctx.Channel.Id))
+                return;
+
             DiscordEmbedBuilder result = await _profileService.LeaderboardAsync(ctx.Guild.Id, queueType);
 
             await ctx.Channel.SendMessageAsync(embed: result).ConfigureAwait(false);
