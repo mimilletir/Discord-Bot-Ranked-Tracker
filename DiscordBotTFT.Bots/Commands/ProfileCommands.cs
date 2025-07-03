@@ -19,7 +19,7 @@ namespace DiscordBotTFT.Bots.Commands
         [SlashCommand("addaccount","Ajoute un compte à suivre")]
         public async Task AddAccount(InteractionContext ctx, [Option("Pseudo", "Name")] string pseudo, [Option("Tag", "Tag")] string tag)
         {
-            string result = await _profileService.CreateAccountAsync(pseudo, tag);
+            string result = await _profileService.CreateAccountAsync(ctx.Guild.Id, pseudo, tag);
 
             string message = result switch
             {
@@ -34,7 +34,7 @@ namespace DiscordBotTFT.Bots.Commands
         [SlashCommand("deleteaccount", "Supprime un compte suivi")]
         public async Task DeleteAccount(InteractionContext ctx, [Option("Pseudo", "Name")] string pseudo, [Option("Tag", "Tag")] string tag)
         {
-            string result = await _profileService.DeleteAccountAsync(pseudo, tag);
+            string result = await _profileService.DeleteAccountAsync(ctx.Guild.Id, pseudo, tag);
 
             string message = result switch
             {
@@ -48,7 +48,7 @@ namespace DiscordBotTFT.Bots.Commands
         [SlashCommand("list", "Liste de tout les comptes suivis")]
         public async Task ListAccount(InteractionContext ctx)
         {
-            DiscordEmbedBuilder result = await _profileService.ListAccountAsync();
+            DiscordEmbedBuilder result = await _profileService.ListAccountAsync(ctx.Guild.Id);
 
             await ctx.Channel.SendMessageAsync(embed: result).ConfigureAwait(false);
         }
@@ -56,7 +56,7 @@ namespace DiscordBotTFT.Bots.Commands
         [SlashCommand("leaderboard", "Classement des joueurs dans un certain type de queue")]
         public async Task LeaderboardAccount(InteractionContext ctx, [Option("QueueType", "Name")] string queueType)
         {
-            DiscordEmbedBuilder result = await _profileService.LeaderboardAsync(queueType);
+            DiscordEmbedBuilder result = await _profileService.LeaderboardAsync(ctx.Guild.Id, queueType);
 
             await ctx.Channel.SendMessageAsync(embed: result).ConfigureAwait(false);
         }

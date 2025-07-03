@@ -3,6 +3,7 @@ using DiscordBotTFT.Core.Services.API;
 using DiscordBotTFT.DAL;
 using DiscordBotTFT.DAL.Models;
 using DSharpPlus.Entities;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,10 @@ namespace DiscordBotTFT.Core.Services.Profiles
 {
     public interface IProfileService
     {
-        Task<string> CreateAccountAsync(string pseudo, string tag);
-        Task<string> DeleteAccountAsync(string pseudo, string tag);
-        Task<DiscordEmbedBuilder> ListAccountAsync();
-        Task<DiscordEmbedBuilder> LeaderboardAsync(string queueType);
+        Task<string> CreateAccountAsync(ulong server, string pseudo, string tag);
+        Task<string> DeleteAccountAsync(ulong server, string pseudo, string tag);
+        Task<DiscordEmbedBuilder> ListAccountAsync(ulong server);
+        Task<DiscordEmbedBuilder> LeaderboardAsync(ulong server, string queueType);
     }
 
     public class ProfileService : IProfileService
@@ -47,7 +48,7 @@ namespace DiscordBotTFT.Core.Services.Profiles
             _apiService = apiService;
         }
 
-        public async Task<string> CreateAccountAsync(string pseudo, string tag)
+        public async Task<string> CreateAccountAsync(ulong server, string pseudo, string tag)
         {
             using var context = new RiotContext(_options);
 
@@ -74,12 +75,12 @@ namespace DiscordBotTFT.Core.Services.Profiles
             return "Success";
         }
 
-        public async Task<string> DeleteAccountAsync(string pseudo, string tag)
+        public async Task<string> DeleteAccountAsync(ulong server, string pseudo, string tag)
         {
             using var context = new RiotContext(_options);
 
             var profile = await context.Profiles
-                .FirstOrDefaultAsync(x => x.gameName == pseudo && x.tagLine == tag).ConfigureAwait(false);
+                .FirstOrDefaultAsync(x => x.server == server && x.gameName == pseudo && x.tagLine == tag).ConfigureAwait(false);
 
             if (profile != null)
             {
@@ -93,11 +94,13 @@ namespace DiscordBotTFT.Core.Services.Profiles
             return "Failed";
         }
 
-        public async Task<DiscordEmbedBuilder> ListAccountAsync()
+        public async Task<DiscordEmbedBuilder> ListAccountAsync(ulong server)
         {
             using var context = new RiotContext(_options);
 
-            var profiles = await context.Profiles.ToListAsync();
+            var profiles = await context.Profiles
+                .Where(x => x.server == server)
+                .ToListAsync();
 
             var profileEmbed = new DiscordEmbedBuilder
             { 
@@ -119,11 +122,13 @@ namespace DiscordBotTFT.Core.Services.Profiles
             return profileEmbed;
         }
 
-        public async Task<DiscordEmbedBuilder> LeaderboardAsync(string queueType)
+        public async Task<DiscordEmbedBuilder> LeaderboardAsync(ulong server, string queueType)
         {
             using var context = new RiotContext(_options);
 
-            var profiles = await context.Profiles.ToListAsync();
+            var profiles = await context.Profiles
+                .Where(x => x.server == server)
+                .ToListAsync();
 
             var profileEmbed = new DiscordEmbedBuilder
             {
