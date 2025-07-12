@@ -1,5 +1,6 @@
 ﻿using DiscordBotTFT.Bots.Handlers;
-using DiscordBotTFT.Core.Services.Profiles;
+using DiscordBotTFT.Core.Services;
+using DiscordBotTFT.DAL.Models;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
@@ -58,9 +59,26 @@ namespace DiscordBotTFT.Bots.Commands
             if (await channelHandler.CheckChannel(ctx.Guild.Id, ctx.Channel.Id))
                 return;
 
-            DiscordEmbedBuilder result = await _profileService.ListAccountAsync(ctx.Guild.Id);
+            List<Profile> profiles = await _profileService.ListAccountAsync(ctx.Guild.Id);
+            
+            var profileEmbed = new DiscordEmbedBuilder
+            {
+                Title = "Tracked Accounts"
+            };
 
-            await ctx.Channel.SendMessageAsync(embed: result).ConfigureAwait(false);
+            if (profiles.Count > 0)
+            {
+                var pseudoList = string.Join("\n", profiles.Select(p => $"{p.gameName}#{p.tagLine}"));
+
+                profileEmbed.AddField("\u200b", pseudoList);
+            }
+
+            else
+            {
+                profileEmbed.AddField("\u200b", "No Tracked Account");
+            }
+
+            await ctx.Channel.SendMessageAsync(embed: profileEmbed).ConfigureAwait(false);
         }
 
         [SlashCommand("leaderboard", "Classement des joueurs dans un certain type de queue")]

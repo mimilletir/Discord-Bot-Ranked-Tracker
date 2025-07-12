@@ -1,5 +1,4 @@
 ﻿using Azure;
-using DiscordBotTFT.Core.Services.API;
 using DiscordBotTFT.DAL;
 using DiscordBotTFT.DAL.Models;
 using DSharpPlus.Entities;
@@ -9,14 +8,16 @@ using System;
 using System.Collections.Generic;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace DiscordBotTFT.Core.Services.Profiles
+namespace DiscordBotTFT.Core.Services
 {
     public interface IProfileService
     {
         Task<string> CreateAccountAsync(ulong server, string pseudo, string tag);
         Task<string> DeleteAccountAsync(ulong server, string pseudo, string tag);
-        Task<DiscordEmbedBuilder> ListAccountAsync(ulong server);
+        Task<string> GetPlayerNameAsync(ulong server, string puuid);
+        Task<List<Profile>> ListAccountAsync(ulong server);
         Task<DiscordEmbedBuilder> LeaderboardAsync(ulong server, string queueType);
+        Task ChangeMatchStatusState(Profile profile);
     }
 
     public class ProfileService : IProfileService
@@ -40,9 +41,9 @@ namespace DiscordBotTFT.Core.Services.Profiles
         };
 
         private readonly DbContextOptions<RiotContext> _options;
-        private readonly APIService _apiService;
+        private readonly IAPIService _apiService;
 
-        public ProfileService(DbContextOptions<RiotContext> options, APIService apiService)
+        public ProfileService(DbContextOptions<RiotContext> options, IAPIService apiService)
         {
             _options = options;
             _apiService = apiService;
@@ -57,14 +58,18 @@ namespace DiscordBotTFT.Core.Services.Profiles
 
             if (profile != null) { return "Exist"; }
 
-            var account = await _apiService.GetAccountByName(pseudo, tag);
+            var account = await _apiService.GetAccountByNameAsync(pseudo, tag);
 
             if (account == null) { return "Failed"; }
 
+            var region = await _apiService.GetAccountRegionByPuuidAsync(account.puuid);
+
             profile = new Profile
             {
+                server = server,
                 gameName = account.gameName,
                 tagLine = account.tagLine,
+                region = region.region,
                 puuid = account.puuid
             };
 
@@ -88,13 +93,23 @@ namespace DiscordBotTFT.Core.Services.Profiles
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
 
-                return "Success"; 
+                return "Success";
             }
 
             return "Failed";
         }
 
-        public async Task<DiscordEmbedBuilder> ListAccountAsync(ulong server)
+        public async Task<string> GetPlayerNameAsync(ulong server, string puuid)
+        {
+            using var context = new RiotContext(_options);
+
+            var profile = await context.Profiles
+                .FirstOrDefaultAsync(x => x.server == server && x.puuid == puuid).ConfigureAwait(false);
+
+            return $"{profile.gameName}#{profile.tagLine}";
+        }
+
+        public async Task<List<Profile>> ListAccountAsync(ulong server)
         {
             using var context = new RiotContext(_options);
 
@@ -102,24 +117,7 @@ namespace DiscordBotTFT.Core.Services.Profiles
                 .Where(x => x.server == server)
                 .ToListAsync();
 
-            var profileEmbed = new DiscordEmbedBuilder
-            { 
-                Title = "Tracked Accounts"
-            };
-
-            if (profiles.Count > 0)
-            {
-                var pseudoList = string.Join("\n", profiles.Select(p => $"{p.gameName}#{p.tagLine}"));
-
-                profileEmbed.AddField("\u200b", pseudoList);
-            }
-
-            else
-            {
-                profileEmbed.AddField("\u200b", "No Tracked Account");
-            }
-
-            return profileEmbed;
+            return profiles;
         }
 
         public async Task<DiscordEmbedBuilder> LeaderboardAsync(ulong server, string queueType)
@@ -141,7 +139,7 @@ namespace DiscordBotTFT.Core.Services.Profiles
 
                 foreach (Profile profile in profiles)
                 {
-                    var account = await _apiService.GetAccountRankByPuuid(profile.puuid);
+                    var account = await _apiService.GetAccountRankByPuuidAsync(profile.puuid);
 
                     if (account == null) { return null; }
 
@@ -169,7 +167,7 @@ namespace DiscordBotTFT.Core.Services.Profiles
                     await context.SaveChangesAsync().ConfigureAwait(false);
                 }
 
-                profileList.Sort(delegate((string, int) x, (string, int) y)
+                profileList.Sort(delegate ((string, int) x, (string, int) y)
                 {
                     return y.Item2.CompareTo(x.Item2);
                 });
@@ -183,7 +181,8 @@ namespace DiscordBotTFT.Core.Services.Profiles
 
                     var rank = p.ranks.FirstOrDefault(r => r.queueType == "RANKED_SOLO_5x5");
                     accountDataList.Add($"{p.gameName}#{p.tagLine} is at {rank.tier} {rank.rank} {rank.leaguePoints}");
-                };
+                }
+                ;
 
                 var leaderboardList = string.Join("\n", accountDataList);
 
@@ -196,6 +195,17 @@ namespace DiscordBotTFT.Core.Services.Profiles
             }
 
             return profileEmbed;
+        }
+
+        public async Task ChangeMatchStatusState(Profile profile)
+        {
+            using var context = new RiotContext(_options);
+
+            profile.currentlyInGame = !profile.currentlyInGame;
+
+            await context.SaveChangesAsync().ConfigureAwait(false);
+
+            return;
         }
     }
 }

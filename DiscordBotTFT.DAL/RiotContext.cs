@@ -8,5 +8,6 @@ namespace DiscordBotTFT.DAL
         public RiotContext(DbContextOptions<RiotContext> options) : base(options) { }
 
         public DbSet<Profile> Profiles { get; set; }
+        public DbSet<MatchInfo> MatchInfo { get; set; }
     }
 }

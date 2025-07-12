@@ -1,5 +1,4 @@
-﻿using DiscordBotTFT.Core.Services.API;
-using DiscordBotTFT.Core.Services.Profiles;
+﻿using DiscordBotTFT.Core.Services;
 using DiscordBotTFT.DAL;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +16,8 @@ namespace DiscordBotTFT.Bots
             });
 
             services.AddHttpClient();
-            services.AddScoped<APIService>();
+            services.AddScoped<IAPIService, APIService>();
+            services.AddScoped<IMatchInfoService, MatchInfoService>();
             services.AddScoped<IProfileService, ProfileService>();
 
             var serviceProvider = services.BuildServiceProvider();
