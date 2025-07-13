@@ -2,7 +2,7 @@
 
 namespace DiscordBotTFT.Bots
 {
-    struct ConfigJson
+    struct ConfigJsonBot
     {
         [JsonProperty("token")]
         public string Token { get; private set; }

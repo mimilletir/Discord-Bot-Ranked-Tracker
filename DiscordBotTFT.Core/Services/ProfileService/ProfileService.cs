@@ -1,14 +1,10 @@
-﻿using Azure;
+﻿using DiscordBotTFT.Core.Services.APIService;
 using DiscordBotTFT.DAL;
 using DiscordBotTFT.DAL.Models;
 using DSharpPlus.Entities;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace DiscordBotTFT.Core.Services
+namespace DiscordBotTFT.Core.Services.ProfileService
 {
     public interface IProfileService
     {

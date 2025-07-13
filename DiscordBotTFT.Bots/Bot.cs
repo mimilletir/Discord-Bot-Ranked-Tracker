@@ -1,65 +1,36 @@
-﻿using DiscordBotTFT.Bots.Commands;
+﻿using DiscordBotTFT.Bots;
+using DiscordBotTFT.Bots.Commands;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using Newtonsoft.Json;
-using System.Text;
 
-namespace DiscordBotTFT.Bots
+namespace DiscordBotTFT.Core.Services
 {
-    public class Bot
+    public class Bot : BackgroundService
     {
-        public DiscordClient Client { get; private set; }
-        public InteractivityExtension Interactivity { get; private set; }
-        public CommandsNextExtension Commands {  get; private set; }
+        private readonly IServiceProvider _services;
+        private DiscordClient _client;
 
-        public Bot(IServiceProvider services)
+        public Bot(DiscordClient client)
         {
-            var json = string.Empty;
+            _client = client;
+        }
 
-            using (var fs = File.OpenRead("config.json"))
-            using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
-                json = sr.ReadToEnd();
-
-            var configJson = JsonConvert.DeserializeObject<ConfigJson>(json);
-
-            var config = new DiscordConfiguration
-            {
-                Token = configJson.Token,
-                TokenType = TokenType.Bot,
-                AutoReconnect = true,
-                MinimumLogLevel = LogLevel.Debug,
-                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents,
-            };
-
-            Client = new DiscordClient(config);
-
-            Client.Ready += OnClientReady;
-
-            Client.UseInteractivity(new InteractivityConfiguration
-            {
-                Timeout = TimeSpan.FromMinutes(2)
-            });
-
-            var commandsConfig = new SlashCommandsConfiguration
-            {
-                Services = services
-            };
-
-            var Commands = Client.UseSlashCommands(commandsConfig);
-
-            Commands.RegisterCommands<ProfileCommands>();
-            Commands.RegisterCommands<MatchStatusCommands>();
-
-            Client.ConnectAsync();
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _client.Ready += OnClientReady;
+            await _client.ConnectAsync();
+            await Task.Delay(-1, stoppingToken);
         }
 
         private Task OnClientReady(DiscordClient sender, ReadyEventArgs e)
         {
+            Console.WriteLine("Bot is ready!");
             return Task.CompletedTask;
         }
     }
+
 }

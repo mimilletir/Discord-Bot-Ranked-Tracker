@@ -1,12 +1,8 @@
-﻿using Azure;
-using DiscordBotTFT.DAL;
-using DiscordBotTFT.DAL.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using DiscordBotTFT.DAL.Models;
 using Newtonsoft.Json;
-using System;
 using System.Text;
 
-namespace DiscordBotTFT.Core.Services
+namespace DiscordBotTFT.Core.Services.APIService
 {
     public interface IAPIService
     {
@@ -23,10 +19,10 @@ namespace DiscordBotTFT.Core.Services
         {
             var json = string.Empty;
 
-            using (var fs = File.OpenRead("../DiscordBotTFT.Core/Services/config.json"))
+            using (var fs = File.OpenRead("../DiscordBotTFT.Core/Services/configAPIKey.json"))
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
                 json = sr.ReadToEnd();
-            var configJson = JsonConvert.DeserializeObject<ConfigJson>(json);
+            var configJson = JsonConvert.DeserializeObject<ConfigJsonAPIKey>(json);
 
             return configJson.ApiKey;
         }

@@ -9,3 +9,4 @@ artifacts/
 
 DiscordBotTFT.Bots/config.json
 DiscordBotTFT.Core/Services/config.json
+*.json

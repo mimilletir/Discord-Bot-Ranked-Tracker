@@ -1,5 +1,5 @@
 ﻿using DiscordBotTFT.Bots.Handlers;
-using DiscordBotTFT.Core.Services;
+using DiscordBotTFT.Core.Services.ProfileService;
 using DiscordBotTFT.DAL.Models;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
