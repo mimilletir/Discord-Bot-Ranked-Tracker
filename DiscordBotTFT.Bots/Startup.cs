@@ -28,7 +28,7 @@ namespace DiscordBotTFT.Bots
                     TokenType = TokenType.Bot,
                     AutoReconnect = true,
                     MinimumLogLevel = LogLevel.Information,
-                    Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMessages | DiscordIntents.MessageContents,
+                    Intents = DiscordIntents.AllUnprivileged | DiscordIntents.Guilds | DiscordIntents.GuildMembers | DiscordIntents.GuildMessages | DiscordIntents.MessageContents,
                 };
 
                 var client = new DiscordClient(discordConfig);
